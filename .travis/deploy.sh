@@ -13,31 +13,23 @@ dirs=(/home/travis/build/fy-travis-projects/*)
 name="$(cut -d'/' -f6 <<<"${dirs[0]}")"
 echo $name
 
+# collect 3rd party jars into one folder
+cd $HOME 
+mkdir lib
+cd $HOME/.m2/repository
+pwd 
+ls -al
+find . -name '*.jar' -exec mv {} $HOME/lib \;
+
+# collect build artifact jars  into one folder
+cd $HOME
+mkdir project
 cd $HOME/build/fy-travis-projects/$name
+find . -wholename '*target/*SNAPSHOT.jar' -exec mv {} $HOME/project \;
+cd $HOME
+
+pwd
 ls -al
 
-cd $HOME
-sudo apt-get install p7zip-full -y
-7z a -r name.7z build/fy-travis-projects/$name
-
-
-# # collect 3rd party jars into one folder
-# cd $HOME 
-# mkdir lib
-# cd $HOME/.m2/repository
-# pwd 
-# ls -al
-# find . -name '*.jar' -exec mv {} $HOME/lib \;
-
-# # collect build artifact jars  into one folder
-# cd $HOME
-# mkdir project
-# cd $HOME/build/fy-travis-projects/$name
-# find . -name '*.jar' -exec mv {} $HOME/project \;
-# cd $HOME
-
-# pwd
-# ls -al
-
-# rsync -W -rav -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 lib travis@35.236.128.26:/home/travis/projects/$name/
-# rsync -W -rav -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 project travis@35.236.128.26:/home/travis/projects/$name/
+rsync -W -rav -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 lib travis@35.236.128.26:/home/travis/projects/$name/
+rsync -W -rav -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 project travis@35.236.128.26:/home/travis/projects/$name/
