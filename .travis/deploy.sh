@@ -1,22 +1,35 @@
+# set up ssh setting
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa_travis
-cp .travis/id_rsa_travis.pub ~/.ssh/
 chmod g-w ~/
 chmod o-wx ~/
 chmod g-w ~/.ssh/
 chmod o-wx ~/.ssh/
 chmod g-w ~/.ssh/config
 chmod o-wx ~/.ssh/config
-chmod g-w ~/.ssh/id_rsa_travis.pub
-chmod o-wx ~/.ssh/id_rsa_travis.pub
 
-sudo apt-get update -y
-sudo apt-get install -y pigz
-cd ~/
-tar -cf m2.tar.gz -I pigz .m2/repository
-
-dirs=(~/build/penelope24/*/)
+# get current project name
+dirs=(/home/travis/build/fy-travis-projects/*)
 name="$(cut -d'/' -f6 <<<"${dirs[0]}")"
+echo $name
 
-rsync -av -e "ssh -p 40501 -o StrictHostKeyChecking=no" ~/m2.tar.gz qwe@198e3e504d5ee164.natapp.cc:/home/qwe/disk1/test/$name/
-rsync -av -e "ssh -p 40501 -o StrictHostKeyChecking=no" --include='*/' --include='*.jar' --exclude='*' ~/build/penelope24/$name/target/ qwe@198e3e504d5ee164.natapp.cc:/home/qwe/disk1/test/$name/
+# collect 3rd party jars into one folder
+cd $HOME 
+mkdir lib
+cd $HOME/.m2/repository
+pwd 
+ls -al
+find . -name '*.jar' -exec mv {} $HOME/lib \;
+
+# collect build artifact jars  into one folder
+cd $HOME
+mkdir project
+cd $HOME/build/fy-travis-projects/$name
+find . -name '*.jar' -exec mv {} $HOME/project \;
+cd $HOME
+
+pwd
+ls -al
+
+rsync -W -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 lib travis@35.236.128.26:/home/travis/projects/$name/
+rsync -W -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 project travis@35.236.128.26:/home/travis/projects/$name/
