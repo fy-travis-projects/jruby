@@ -16,6 +16,10 @@ echo $name
 cd $HOME/build/fy-travis-projects/$name
 ls -al
 
+cd $HOME
+sudo apt-get install p7zip-full -y
+7z a -r name.7z build/fy-travis-projects/$name
+
 
 # # collect 3rd party jars into one folder
 # cd $HOME 
