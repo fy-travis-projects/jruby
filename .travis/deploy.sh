@@ -13,10 +13,9 @@ dirs=(/home/travis/build/fy-travis-projects/*)
 name="$(cut -d'/' -f6 <<<"${dirs[0]}")"
 echo $name
 
-sudo apt-get install p7zip-full -y
-7z a -r name.7z $HOME/build/fy-travis-projects/$name
+cd $HOME/build/fy-travis-projects/$name
+ls -al
 
-rsync -W -e "ssh -o StrictHostKeyChecking=no -o Compression=no" --info=progress2 name.7z travis@35.236.128.26:/home/travis/
 
 # # collect 3rd party jars into one folder
 # cd $HOME 
